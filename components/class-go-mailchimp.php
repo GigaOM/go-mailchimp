@@ -475,7 +475,7 @@ class GO_MailChimp
 			}//END foreach
 
 			$this->api()->subscribe( $user_id, $subscribed );
-		}
+		}//END if
 		elseif ( 'delete' == $action )
 		{
 			// unsubscribe from all lists
