@@ -8,7 +8,7 @@ jQuery(function($) {
 		var $el       = $(this);
 		var $parent   = $el.closest('.go-mailchimp');
 		var $feedback = $parent.find('.feedback');
-		var $results = $parent.find('.results');
+		var $results  = $parent.find('.results');
 
 		$feedback.html( 'Synchronizing...' );
 
