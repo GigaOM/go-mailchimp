@@ -287,7 +287,7 @@ class GO_Mailchimp_API
 		// suspend user update triggers
 		go_syncuser()->suspend_triggers( TRUE );
 
-		$return = update_user_meta( $user->ID, 'go_mailchimp_user_status', $inserting );
+		$return = update_user_meta( $user->ID, go_mailchimp()->meta_key(), $inserting );
 
 		// turn triggers back on
 		go_syncuser()->suspend_triggers( FALSE );
