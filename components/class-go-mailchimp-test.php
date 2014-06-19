@@ -69,7 +69,7 @@ class GO_Mailchimp_Test
 
 		// NOTE: these tests would only work if these constants are valid
 		// in your environment
-		$list_id = 'a3e91a3095';
+		$list_id = 'a3e91a3095'; // id for the Test General Users list
 		$email = 'zbtirrell+1234@gigaom.com';
 		$new_email = 'zbtirrell+1234@gmail.com';
 
