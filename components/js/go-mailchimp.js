@@ -1,9 +1,9 @@
 jQuery(function($) {
-	"use strict";
 
 	// function to run when the user clicks on the "Sync to MailChimp" push
 	// button on a user's admin dashboard page
 	$( '.go-mailchimp .sync' ).click(function( e ) {
+		"use strict";
 		e.preventDefault();
 
 		var $el       = $(this);
