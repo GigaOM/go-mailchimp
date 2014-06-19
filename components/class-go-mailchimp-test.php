@@ -5,51 +5,8 @@ class GO_Mailchimp_Test
 	// @TODO: rename the ajax hook and find a way to only activate this class when we need to do testing
 	public function __construct()
 	{
-		add_action( 'wp_ajax_go_mailchimp_trigger', array( $this, 'trigger_ajax' ) );
 		add_action( 'wp_ajax_go_mailchimp_api_test', array( $this, 'api_test_ajax' ) );
 	}//end __construct
-
-	public function go_mailchimp_trigger()
-	{
-		$args = func_get_args();
-		echo '<h3>Found user info and configuration</h3><pre>'. print_r( $args, TRUE ) .'</pre>';
-	}//END go_mailchimp_trigger
-
-	public function trigger_ajax()
-	{
-		// permissions check
-		if ( ! current_user_can( 'activate_plugins' ) )
-		{
-			die;
-		}
-
-		// track the result of these triggers
-		add_action( 'go_mailchimp_trigger', array( $this, 'go_mailchimp_trigger' ), 10, 5 );
-
-		// get the current user
-		$user = wp_get_current_user();
-
-		// uncomment the below if you want to confirm the processed value matches the source
-		//echo '<pre>'. print_r( $user, TRUE ) .'</pre>';
-
-		// display errors
-		$old_reporting_level = error_reporting( E_ALL );
-		$old_display_setting = ini_set( 'display_errors', TRUE );
-
-		// do wp_login
-		echo "<h2>do_action( 'wp_login', \$user->user_login, \$user )</h2>";
-		do_action( 'wp_login', $user->user_login, $user );
-
-		// do updated_user_meta
-		echo "<h2>do_action( 'updated_user_meta', 0, \$user->ID, 'some_key', 'some_value' )</h2>";
-		do_action( 'updated_user_meta', 0, $user->ID, 'some_key', 'some_value' );
-
-		// reset error display
-		ini_set( 'display_errors', $old_display_setting );
-		error_reporting( $old_reporting_level );
-
-		die;
-	}//END trigger_ajax
 
 	public function api_test_ajax()
 	{
