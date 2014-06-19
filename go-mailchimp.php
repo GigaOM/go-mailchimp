@@ -10,6 +10,5 @@
  */
 
 require_once __DIR__ . '/components/class-go-mailchimp.php';
-//require_once __DIR__ . '/components/class-go-mailchimp-map.php';
 
 go_mailchimp();

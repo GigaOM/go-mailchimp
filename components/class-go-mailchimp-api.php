@@ -247,10 +247,10 @@ class GO_Mailchimp_API
 
 		foreach ( $this->list_merge_vars( $list['id'] ) as $mv )
 		{
-			$merge_vars[ $mv['tag'] ] = go_mailchimp_map()->map( $user, $list, $mv['tag'] );
+			$merge_vars[ $mv['tag'] ] = go_mailchimp()->map()->map( $user, $list, $mv['tag'] );
 		}// END foreach
 
-		$merge_vars[ 'GROUPINGS' ] = go_mailchimp_map()->map( $user, $list, 'GROUPINGS' );
+		$merge_vars[ 'GROUPINGS' ] = go_mailchimp()->map()->map( $user, $list, 'GROUPINGS' );
 
 		return $merge_vars;
 	}//END merge_vars

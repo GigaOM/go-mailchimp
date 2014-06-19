@@ -6,8 +6,8 @@
  */
 class GO_MailChimp
 {
-	// Initialize the api and config vars
-	public $api = NULL;
+	private $api = NULL;
+	private $map = NULL;
 
 	private $meta_key_base = 'go_mailchimp';
 	private $config = NULL;
@@ -145,6 +145,23 @@ class GO_MailChimp
 
 		return $this->api;
 	}//END api
+
+	/**
+	 * accessor function for the GO_Mailchimp_Map instance
+	 *
+	 * @return the GO_Mailchimp_Map object
+	 */
+	public function map()
+	{
+		if ( empty( $this->map ) )
+		{
+			require_once __DIR__ . '/class-go-mailchimp-map.php';
+
+			$this->map = new GO_Mailchimp_Map();
+		}//END if
+
+		return $this->map;
+	}//END map
 
 	/**
 	 * Function used to catch hooks being fired from MailChimp

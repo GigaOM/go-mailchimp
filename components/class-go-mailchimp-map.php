@@ -124,15 +124,3 @@ class GO_Mailchimp_Map
 		return $field_config;
 	}//END get_field_config
 }//END class
-
-function go_mailchimp_map()
-{
-	global $go_mailchimp_map;
-
-	if ( ! isset( $go_mailchimp_map ) )
-	{
-		$go_mailchimp_map = new GO_Mailchimp_Map();
-	}
-
-	return $go_mailchimp_map;
-}//END go_mailchimp_map
