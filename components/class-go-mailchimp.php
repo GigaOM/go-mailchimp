@@ -50,8 +50,7 @@ class GO_MailChimp
 		if ( is_admin() )
 		{
 			add_action( 'admin_init', array( $this, 'admin_init' ) );
-			$this->test();
-		}// END if
+		}
 
 		// hook pre_user_login to check if the user is changing her email
 		// or not. if so then we update the user's email at MC before
@@ -250,20 +249,6 @@ class GO_MailChimp
 			wp_enqueue_script( 'go_mailchimp_js', plugins_url( '/js/go-mailchimp.js', __FILE__ ), array( 'jquery' ) );
 		}
 	}//END admin_enqueue_scripts
-
-	/**
-	 * @return GO_Mailchimp_Test singleton
-	 */
-	public function test()
-	{
-		if ( ! isset( $this->test ) )
-		{
-			require_once __DIR__ . '/class-go-mailchimp-test.php';
-			$this->test = new GO_Mailchimp_Test;
-		}
-
-		return $this->test;
-	}//END test
 
 	/**
 	 * add a custom MailChimp column to the user's administration table
