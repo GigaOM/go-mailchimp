@@ -614,7 +614,11 @@ class GO_Mailchimp_API
 	}//END update
 
 	/**
-	 * Update a user's email in MailChimp
+	 * Update a user's email in MailChimp. note that since we use the current
+	 * email of a user to look up the subscriber on MailChimp, the caller
+	 * should make sure the user's email is updated after this call
+	 * succeeds or we might not be able to find the same user by the (old)
+	 * email after this update.
 	 *
 	 * @param object $user WP user to update email for
 	 * @param string $new_email The new email address
@@ -622,9 +626,12 @@ class GO_Mailchimp_API
 	 */
 	public function update_email( $user, $new_email )
 	{
-		$user = $this->sanitize_user( $user );
-		$success = TRUE;
+		if ( ! ( $user = $this->sanitize_user( $user ) ) )
+		{
+			return FALSE;
+		}
 
+		$success = TRUE;
 		foreach ( $this->lists() as $list_id => $list )
 		{
 			$merge_vars = $this->merge_vars( $user, $list_id );
