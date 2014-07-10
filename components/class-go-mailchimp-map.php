@@ -28,56 +28,8 @@ class GO_Mailchimp_Map
 			return $this->map_groupings( $user, $config );
 		}
 
-		return $this->map_field( $user, $config );
+		return go_syncuser_map()->map_field( $user, $config );
 	}//END map
-
-	/**
-	 * maps a field specified in the config to a function specified in the config
-	 *
-	 * @param $user WP_User User being synchronized
-	 * @param $config array Configuration for a merge field
-	 */
-	public function map_field( $user, $config )
-	{
-		// build the arguments array
-		$args = array();
-		if ( isset( $config['args'] ) )
-		{
-			$args = is_array( $config['args'] ) ? $config['args'] : array( $config['args'] );
-		}
-
-		array_unshift( $args, $user ); // add $user as the first arg
-
-		$field_value = call_user_func_array( $config['function'], $args );
-
-		// check if we need to convert the return value to a different type
-		if ( isset( $config['type'] ) )
-		{
-			switch ( $config['type'] )
-			{
-				case 'date':
-					// check to see if the field is a unix timestamp
-					// methodology from: http://stackoverflow.com/questions/3377537/checking-if-a-string-contains-an-integer/3377560#3377560
-					if ( (string) (int) $field_value == $field_value )
-					{
-						$utime = $field_value;
-					}
-					else
-					{
-						$utime = strtotime( $field_value );
-					}
-
-					$field_value = ( $utime ) ? date( 'Y-m-d H:i:s', $utime ) : '';
-					break;
-
-				case 'int':
-					$field_value = intval( $field_value );
-					break;
-			}//END switch
- 		}//END if
-
-		return $field_value;
-	}//END map_field
 
 	/**
 	 * maps list groupings to a collection of group functions specified in the config
@@ -91,7 +43,7 @@ class GO_Mailchimp_Map
 
 		foreach ( $config as $group )
 		{
-			$field_value = $this->map_field( $user, $group );
+			$field_value = go_syncuser_map()->map_field( $user, $group );
 
 			$groups[] = array(
 				'name'   => $group['name'],
