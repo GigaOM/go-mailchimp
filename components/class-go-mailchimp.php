@@ -40,7 +40,7 @@ class GO_MailChimp
 	{
 		if ( ! $this->config() )
 		{
-			$this->log( 'Trying to register hooks without a valid config file.', __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Trying to register hooks without a valid config file.' );
 		}
 
 		add_action( 'show_user_profile', array( $this, 'show_user_profile' ) );
@@ -77,8 +77,8 @@ class GO_MailChimp
 		add_action( 'wp_ajax_go_mailchimp_user_sync', array( $this, 'user_sync_ajax' ) );
 
 		// Webhook Action (for when MailChimp updates us)
-		add_action( 'wp_ajax_go-mailchimp-webhook', array( $this, 'webhook_handler' ) );
-		add_action( 'wp_ajax_nopriv_go-mailchimp-webhook', array( $this, 'webhook_handler' ) );
+		add_action( 'wp_ajax_go-mailchimp-webhook', array( $this, 'webhook_ajax' ) );
+		add_action( 'wp_ajax_nopriv_go-mailchimp-webhook', array( $this, 'webhook_ajax' ) );
 
 		// Our settings page, um, settings
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
@@ -166,7 +166,7 @@ class GO_MailChimp
 	 * Function used to catch hooks being fired from MailChimp
 	 * Goes through on a case basis and assigns to necessary actions
 	 */
-	public function webhook_handler()
+	public function webhook_ajax()
 	{
 		// Mailchimp's documentation: http://apidocs.mailchimp.com/webhooks/
 
@@ -215,7 +215,7 @@ class GO_MailChimp
 		}//END switch
 
 		die;
-	}//END webhook_handler
+	}//END webhook_ajax
 
 	/**
 	 * hooked to the go_user_profile_do_not_email_updated action. 
@@ -484,37 +484,6 @@ class GO_MailChimp
 			$this->api()->unsubscribe( $user_id, $lists );
 		}
 	}//END go_syncuser_user
-
-	/**
-	 * Instead of bolting onto api log function, keeping this local for
-	 * better source and error tracing
-	 *
-	 * @param string $message The message to be output
-	 * @param string $origin The function that called log
-	 * @param string $line (optional) Line number of log call
-	 */
-	public function log( $message, $origin, $line = '' )
-	{
-		if ( ! isset( $message ) )
-		{
-			$error = '[GO_Mailchimp::Log::error] => Error function was called without a message.';
-			apply_filters( 'go_slog', 'go-mailchimp', $error, '' );
-			error_log( $error );
-			return;
-		}//END if
-
-		if ( ! isset( $origin ) )
-		{
-			$error = '[GO_Mailchimp::Log::error] => Error function was called without an origin.';
-			apply_filters( 'go_slog', 'go-mailchimp', $error, '' );
-			error_log( $error );
-			return;
-		}//END if
-
-		$error = '[ GO_Mailchimp::' . $origin . ',' . $line  . '] => ' . $message;
-		apply_filters( 'go_slog', 'go-mailchimp', $error, '' );
-		error_log( $error );
-	}//END log
 
 	/**
 	 * captures the existing WP_User object before it is updated

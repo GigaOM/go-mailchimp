@@ -23,8 +23,7 @@ class GO_Mailchimp_API
 	{
 		if ( class_exists( 'Mailchimp', FALSE ) )
 		{
-			$this->log( 'Warning: Mailchimp class already registered by another plugin.', __FUNCTION__ );
-			$this->log( 'Attempting to use that, but watch for errors if the external version is incompatible.', __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Warning: Mailchimp class already registered by another plugin. Attempting to use that, but watch for errors if the external version is incompatible.' );
 		}
 		else
 		{
@@ -62,7 +61,7 @@ class GO_Mailchimp_API
 			}
 		}//END foreach
 
-		$this->log( 'No lists found with an id or name of "' . $identifier . '".', __FUNCTION__ );
+		apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': No lists found with an id or name of "' . $identifier . '".' );
 		return NULL;
 	}//END list_data
 
@@ -82,14 +81,13 @@ class GO_Mailchimp_API
 		}
 		catch ( Exception $e )
 		{
-			$this->log( 'An Exception was thrown: ', __FUNCTION__ );
-			$this->log( $e->getMessage(), __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': An Exception was thrown: ' . $e->getMessage() );
 			return FALSE;
 		}//END catch
 
 		if ( ! isset( $merge_vars['data'][0]['merge_vars'] ) )
 		{
-			$this->log( 'Merge vars not found: ', __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Merge vars not found' );
 			return FALSE;
 		}
 
@@ -120,8 +118,7 @@ class GO_Mailchimp_API
 				}
 				catch ( Exception $e )
 				{
-					$this->log( 'An Exception was thrown: ', __FUNCTION__ );
-					$this->log( $e->getMessage(), __FUNCTION__ );
+					apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': An Exception was thrown: ' . $e->getMessage() );
 					return FALSE;
 				}//END catch
 
@@ -161,38 +158,9 @@ class GO_Mailchimp_API
 				break;
 		}//END switch
 
-		$this->log( 'No lists found from "' . $source . '".', __FUNCTION__ );
+		apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': No lists found from "' . $source . '".' );
 		return FALSE;
 	}//END lists
-
-	/**
-	 * function for logging. Instead of bolting onto api log
-	 * function, keeping this local for better source and error tracing
-	 *
-	 * @param string $message The message to be output
-	 * @param string $origin The function that called log
-	 * @param string $line (optional) Line number of log call
-	 */
-	public function log( $message, $origin, $line = '' )
-	{
-		if ( ! isset( $message ) )
-		{
-			$error = '[GO_MCSync_API::Log::error] => Error function was called without a message.';
-			apply_filters( 'go_slog', 'go-mailchimp', $error, '' );
-			error_log( $error );
-			return;
-		}
-		elseif ( ! isset( $origin ) )
-		{
-			$error = '[GO_MCSync_API::Log::error] => Error function was called without an origin.';
-			apply_filters( 'go_slog', 'go-mailchimp', $error, '' );
-			error_log( $error );
-		}
-
-		$error = '[ GO_MCSync_API::' . $origin . ',' . $line  . '] => ' . $message;
-		apply_filters( 'go_slog', 'go-mailchimp', $error, '' );
-		error_log( $error );
-	}//END log
 
 	/**
 	 * Gets the membership information for an email address in a
@@ -206,7 +174,7 @@ class GO_Mailchimp_API
 	{
 		if ( empty( $user->user_email ) || empty( $list ) )
 		{
-			$this->log( 'Empty email or list id passed.', __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Empty email or list id passed.' );
 			return FALSE;
 		}
 
@@ -217,14 +185,13 @@ class GO_Mailchimp_API
 		}//END try
 		catch ( Exception $e )
 		{
-			$this->log( 'An Exception was thrown: ', __FUNCTION__ );
-			$this->log( $e->getMessage(), __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': An Exception was thrown: ' . $e->getMessage() );
 			return FALSE;
 		}//END catch
 
 		if ( empty( $member ) || empty( $member['data'] ) )
 		{
-			$this->log( "No membership info found for email address '{$user->user_email}' in list: $list", __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ": No membership info found for email address '{$user->user_email}' in list: $list" );
 			return FALSE;
 		}//END if
 
@@ -337,12 +304,13 @@ class GO_Mailchimp_API
 	public function subscribe( $user, $list = NULL, $merge_vars = NULL, $wait = FALSE, $action = 'subscribe' )
 	{
 		// validate the user input
-		$user = $this->sanitize_user( $user );
+		$user_in = $user; // save this in case of error
+		$user = $this->sanitize_user( $user_in );
 
 		// make sure we found a user
 		if ( empty( $user ) || is_wp_error( $user ) )
 		{
-			$this->log( 'No user found for input value, got ' . var_export( $user, TRUE ), __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': No user found for input value, got ' . var_export( $user_in, TRUE ) );
 			return FALSE;
 		}//END if
 
@@ -369,7 +337,7 @@ class GO_Mailchimp_API
 		{
 			if ( ! ( $merge_vars = $this->merge_vars( $user, $list ) ) )
 			{
-				$this->log( 'No merge variables were passed.', __FUNCTION__ );
+				apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': No merge variables were passed in.' );
 				return FALSE;
 			}
 		}//END if
@@ -391,14 +359,13 @@ class GO_Mailchimp_API
 		}//END try
 		catch ( Exception $e )
 		{
-			$this->log( 'An Exception was thrown: ', __FUNCTION__ );
-			$this->log( $e->getMessage(), __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': An Exception was thrown: ' . $e->getMessage() );
 			return FALSE;
 		}//END catch
 
 		if ( ! $api_result )
 		{
-			$this->log( 'Unable to subscribe user to list', __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Unable to subscribe user to list ' . $list );
 			return FALSE;
 		}
 
@@ -423,7 +390,7 @@ class GO_Mailchimp_API
 	{
 		if ( empty( $user->user_email ) || empty( $list_id ) )
 		{
-			$this->log( 'Invalid email or list id passed. ', __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Invalid email or list id passed in.' );
 			return FALSE;
 		}
 
@@ -492,12 +459,13 @@ class GO_Mailchimp_API
 	public function unsubscribe( $user, $list = NULL, $delete = FALSE, $wait = FALSE, $action = 'unsubscribe' )
 	{
 		// validate the user input
+		$user_in = $user;
 		$user = $this->sanitize_user( $user );
 
 		// make sure we found a user
 		if ( empty( $user ) || is_wp_error( $user ) )
 		{
-			$this->log( 'No user found for input value, got ' . var_export( $user, TRUE ), __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': No user found for input value ' . var_export( $user_in, TRUE ) );
 			return FALSE;
 		}
 
@@ -529,7 +497,7 @@ class GO_Mailchimp_API
 		{
 			if ( $this->debug )
 			{
-				$this->log( 'The user\'s email appears already unsubscribed from the list "'. $list . '"', __FUNCTION__ );
+				apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ": The user's email appears to be already unsubscribed from the list '$list'" );
 			}
 
 			$this->save_status( $user, $action, __FUNCTION__ );
@@ -543,14 +511,13 @@ class GO_Mailchimp_API
 		}//end try
 		catch ( Exception $e )
 		{
-			$this->log( 'An Exception was thrown: ', __FUNCTION__ );
-			$this->log( $e->getMessage(), __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': An Exception was thrown: ' . $e->getMessage() );
 			return FALSE;
 		}//END catch
 
 		if ( ! $api_result )
 		{
-			$this->log( 'Unable to call list->unsubscribe', __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Unable to call $list->unsubscribe' );
 			return FALSE;
 		}
 
@@ -645,14 +612,13 @@ class GO_Mailchimp_API
 			}//END try
 			catch ( Exception $e )
 			{
-				$this->log( 'An Exception was thrown: ', __FUNCTION__ );
-				$this->log( $e->getMessage(), __FUNCTION__ );
+				apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': An Exception was thrown: ' . $e->getMessage() );
 				$success = FALSE;
 			}//END catch
 
 			if ( ! $api_result )
 			{
-				$this->log( "Failed to update the user email to ($new_email) from ({$user->user_email}) in list '$list_id'.", __FUNCTION__ );
+				apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ": Failed to update the user email to ($new_email) from ({$user->user_email}) in list '$list_id'." );
 				$success = FALSE;
 			}
 		}//END foreach
@@ -722,8 +688,7 @@ class GO_Mailchimp_API
 		}
 		catch ( Exception $e )
 		{
-			$this->log( 'An Exception was thrown: ', __FUNCTION__ );
-			$this->log( $e->getMessage(), __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': An Exception was thrown: ' . $e->getMessage() );
 			return FALSE;
 		}//END catch
 	}//END get_campaigns_list
@@ -742,8 +707,7 @@ class GO_Mailchimp_API
 		}
 		catch ( Exception $e )
 		{
-			$this->log( 'An Exception was thrown: ', __FUNCTION__ );
-			$this->log( $e->getMessage(), __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': An Exception was thrown: ' . $e->getMessage() );
 			return FALSE;
 		}//END catch
 	}//END delete_campaign
@@ -761,7 +725,7 @@ class GO_Mailchimp_API
 	{
 		if ( is_array( $emails ) && 50 < count( $emails ) )
 		{
-			$this->log( 'can only get member activity for up to 50 emails at a time' );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Can only get member activity for up to 50 emails at a time.' );
 			return FALSE;
 		}
 
@@ -784,8 +748,7 @@ class GO_Mailchimp_API
 		}
 		catch ( Exception $e )
 		{
-			$this->log( 'An Exception was thrown: ', __FUNCTION__ );
-			$this->log( $e->getMessage(), __FUNCTION__ );
+			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': An Exception was thrown: ' . $e->getMessage() );
 			return FALSE;
 		}//END catch
 	}//END member_activity
