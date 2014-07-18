@@ -29,10 +29,6 @@ class GO_MailChimp_Admin
 		add_action( 'show_user_profile', array( $this, 'show_user_profile' ) );
 		add_action( 'edit_user_profile', array( $this, 'show_user_profile' ) );
 
-		// Custom columns in the user listing
-		add_filter( 'manage_users_columns', array( $this, 'manage_users_columns' ) );
-		add_filter( 'manage_users_custom_column', array( $this, 'manage_users_custom_column' ), 15, 3 );
-
 		// Ajax handlers
 		add_action( 'wp_ajax_go_mailchimp_user_sync', array( $this, 'user_sync_ajax' ) );
 
@@ -155,40 +151,6 @@ class GO_MailChimp_Admin
 
 		return '<li><p>' . $anchor_before . esc_html( $list['name'] ) . $anchor_after . $ratings_html . '</p></li>';
 	}//END get_subscribed_list_html
-
-	/**
-	 * add a custom MailChimp column to the user's administration table
-	 *
-	 * @param array $columns An array of the columns already setup
-	 * @return array The new columns array
-	 */
-	public function manage_users_columns( $columns )
-	{
-		$columns[ 'go_mailchimp_user_status' ] = 'MailChimp';
-		return $columns;
-	}//END manage_users_columns
-
-	/**
-	 * The value to actually place in the table cell for each user in the
-	 * newly added MailChimp column
-	 *
-	 * @param string $output the custom column output. defaults to ''
-	 * @param string $column_name The name of the column to put val in
-	 * @param object $user The user who we are displaying the val for
-	 * @return string Return the date of last sync or Not Synced
-	 *
-	 * @NOTE: The first parameter is required by WordPress :/
-	 */
-	public function manage_users_custom_column( $output, $column_name, $user )
-	{
-		if ( 'go_mailchimp_user_status' == $column_name )
-		{
-			$status = get_user_meta( $user, $this->core->meta_key(), TRUE );
-			return ( isset( $status[ 'activity_date' ] ) ) ? ( 'Last Synced: ' . date( 'Y-m-d H:i:s', $status[ 'activity_date' ] ) ) : 'Not Synced';
-		}
-
-		return $output;
-	}//END manage_users_custom_column
 
 	/**
 	 * ajax callback for the Sync button on the user profile page to
