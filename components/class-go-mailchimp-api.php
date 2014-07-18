@@ -166,7 +166,7 @@ class GO_Mailchimp_API
 	 * Gets the membership information for an email address in a
 	 * particular list.
 	 *
-	 * @param mixed $user user id or WP_User object
+	 * @param mixed $user user id or a WP_User object
 	 * @param string $list id of the list.
 	 * @return mixed Returns an array of member info or FALSE
 	 */
