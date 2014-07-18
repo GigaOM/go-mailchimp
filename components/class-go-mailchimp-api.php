@@ -198,12 +198,13 @@ class GO_Mailchimp_API
 	 * Gets the membership information for an email address in a
 	 * particular list.
 	 *
-	 * @param object $user WP_User object
+	 * @param mixed $user user id or a WP_User object
 	 * @param string $list id of the list.
 	 * @return mixed Returns an array of member info or FALSE
 	 */
 	public function member( $user, $list )
 	{
+		$user = $this->sanitize_user( $user );
 		if ( empty( $user->user_email ) || empty( $list ) )
 		{
 			$this->log( 'Empty email or list id passed.', __FUNCTION__ );

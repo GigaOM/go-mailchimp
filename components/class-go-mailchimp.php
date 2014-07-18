@@ -469,7 +469,7 @@ class GO_MailChimp
 			// the mailchimp merge vars
 			foreach ( $lists as $list )
 			{
-				$membership_info = $this->api()->member( $user, $list['id'] );
+				$membership_info = $this->api()->member( $user_id, $list['id'] );
 				if ( 'subscribed' == $membership_info['status'] )
 				{
 					$subscribed[] = $list['id'];
