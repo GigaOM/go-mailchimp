@@ -164,7 +164,7 @@ class GO_MailChimp_Admin
 			die;
 		}
 
-		if ( ! ( $user = get_userdata( wp_filter_nohtml_kses( $_REQUEST[ 'go_mailchimp_user_sync_user' ] ) ) ) )
+		if ( ! $user = get_userdata( wp_filter_nohtml_kses( $_REQUEST[ 'go_mailchimp_user_sync_user' ] ) ) )
 		{
 			echo '<p class="error">Couldn&apos;t read user data</p>';
 			die;
