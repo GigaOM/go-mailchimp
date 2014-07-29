@@ -238,7 +238,7 @@ class GO_MailChimp
 
 		// in our set up the user is generally only subscribed to one list
 		// so we just pick the rating from the first list in the user meta
-		foreach( $usermeta as $list_info )
+		foreach ( $usermeta as $list_info )
 		{
 			if ( empty( $list_info['member_rating'] ) )
 			{
