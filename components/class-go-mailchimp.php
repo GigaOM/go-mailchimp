@@ -213,6 +213,43 @@ class GO_MailChimp
 		$this->user_pre_update = get_user_by( 'login', $user_login );
 		return $user_login;
 	}//end pre_user_login
+
+	/**
+	 * @param WP_User $user a user object
+	 * @return the MC member rating from $user's user meta, or '' if we
+	 *  don't have one.
+	 */
+	public function get_subscriber_rating( $user )
+	{
+		if ( empty( $user->ID ) )
+		{
+			return '';
+		}
+
+		if ( ! $usermeta = get_user_meta( $user->ID, go_mailchimp()->meta_key( 'subscriber_info' ), TRUE ) )
+		{
+			return '';
+		}
+
+		if ( empty( $usermeta ) )
+		{
+			return '';
+		}
+
+		// in our set up the user is generally only subscribed to one list
+		// so we just pick the rating from the first list in the user meta
+		foreach ( $usermeta as $list_info )
+		{
+			if ( empty( $list_info['member_rating'] ) )
+			{
+				continue;
+			}
+
+			return $list_info['member_rating'];
+		}
+
+		return '';
+	}//END get_subscriber_rating
 }//END class
 
 /**
