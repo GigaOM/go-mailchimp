@@ -159,13 +159,19 @@ class GO_MailChimp
 	 */
 	public function do_not_email_updated( $user_id, $do_not_email )
 	{
-		// we can only act if $do_not_email is FALSE and we have a valid $user_id
-		if ( $do_not_email || 0 >= $user_id )
+		if ( 0 >= $user_id )
 		{
 			return;
 		}
 
-		$this->api()->subscribe( $user_id );
+		if ( $do_not_email )
+		{
+			$this->api()->unsubscribe( $user_id );
+		}
+		else
+		{
+			$this->api()->subscribe( $user_id );
+		}
 	}//END do_not_email_updated
 
 	/**
