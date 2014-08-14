@@ -248,8 +248,11 @@ class GO_Mailchimp_API
 		{
 			$inserting[ 'unsubscribed' ] = $unsubscribed;
 			// if someone has unsubscribed from any of our lists, let's flag
-			// them as do not email
-			do_action( 'go_user_profile_do_not_email', $user->ID, TRUE );
+			// them as do not email if they're not already
+			if ( ! $this->do_not_email( $user->ID ) )
+			{
+				do_action( 'go_user_profile_do_not_email', $user->ID, TRUE );
+			}
 		}//END if
 
 		// suspend user update triggers
@@ -392,11 +395,6 @@ class GO_Mailchimp_API
 		if ( empty( $user->user_email ) || empty( $list_id ) )
 		{
 			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Invalid email or list id passed in.' );
-			return FALSE;
-		}
-
-		if ( $this->do_not_email( $user->ID ) )
-		{
 			return FALSE;
 		}
 
