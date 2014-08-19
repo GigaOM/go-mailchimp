@@ -257,7 +257,7 @@ class GO_MailChimp_Admin
 				}
 				elseif ( go_syncuser()->debug() )
 				{
-					apply_filters( 'go_slog', 'go-mailchimp', 'user with email ' . sanitize_email( $_POST[ 'data' ][ 'email' ] ) . ' not found');
+					apply_filters( 'go_slog', 'go-mailchimp', 'user with email ' . sanitize_email( $_POST[ 'data' ][ 'email' ] ) . ' not found' );
 				}
 				break;
 
