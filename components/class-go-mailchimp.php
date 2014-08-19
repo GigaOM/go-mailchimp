@@ -159,6 +159,11 @@ class GO_MailChimp
 	 */
 	public function do_not_email_updated( $user_id, $do_not_email )
 	{
+		if ( go_syncuser()->debug() )
+		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'do_not_email updated to ' . var_export( $do_not_email, 1 ) . ' by user ' . $user_id );
+		}
+
 		if ( 0 >= $user_id )
 		{
 			return;
@@ -184,6 +189,11 @@ class GO_MailChimp
 	 */
 	public function go_syncuser_user( $user_id, $action )
 	{
+		if ( go_syncuser()->debug() )
+		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'go_syncuser_user action invoked for user ' . $user_id );
+		}
+
 		// get all lists from mailchimp
 		$lists = $this->api()->lists();
 

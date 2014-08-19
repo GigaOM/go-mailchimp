@@ -161,14 +161,20 @@ class GO_MailChimp_Admin
 		// only allowed for people who can edit users
 		if ( ! current_user_can( 'edit_users' ) )
 		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'called by non-admin user ' . get_current_user_id() );
 			die;
 		}
 
 		if ( ! $user = get_userdata( wp_filter_nohtml_kses( $_REQUEST[ 'go_mailchimp_user_sync_user' ] ) ) )
 		{
 			echo '<p class="error">Couldn&apos;t read user data</p>';
+			apply_filters( 'go_slog', 'go-mailchimp', 'Invalid user data' );
 			die;
 		}
+
+		// always set go-syncuser's debug option to TRUE when sync'ing manually
+		$prev_debug = go_syncuser()->debug();
+		go_syncuser()->debug( TRUE );
 
 		$subscribe = $unsubscribe = array();
 
@@ -182,10 +188,10 @@ class GO_MailChimp_Admin
 			switch ( $membership_info['status'] )
 			{
 				case 'unsubscribed':
-					$unsubscribe[] = $list['id'];
+					$unsubscribe[ $list['id'] ] = $list['id'];
 					break;
 				default:
-					$subscribe[] = $list['id'];
+					$subscribe[ $list['id'] ] = $list['id'];
 					break;
 			}//END switch
 		}//END foreach
@@ -203,6 +209,9 @@ class GO_MailChimp_Admin
 		}
 
 		$this->display_user_profile_status_section( $user );
+
+		// restore the previous debug option value
+		go_syncuser()->debug( $prev_debug );
 		die;
 	}//END user_sync_ajax
 
@@ -212,6 +221,11 @@ class GO_MailChimp_Admin
 	 */
 	public function webhook_ajax()
 	{
+		if ( go_syncuser()->debug() )
+		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'webhook_ajax called' );
+		}
+
 		// Mailchimp's documentation: http://apidocs.mailchimp.com/webhooks/
 
 		// example URL: http://site.org/wp-admin/admin-ajax.php?action=go-mailchimp-webhook&mailchimpwhs=$webhook_secret
@@ -225,6 +239,10 @@ class GO_MailChimp_Admin
 
 		if ( ! isset( $lists[ $list_id ]['webhook_secret'] ) || ! $_GET['mailchimpwhs'] == $lists[ $list_id ]['webhook_secret'] )
 		{
+			if ( go_syncuser()->debug() )
+			{
+				apply_filters( 'go_slog', 'go-mailchimp', 'missing or invalid webhook_secret' );
+			}
 			die;
 		}
 
@@ -236,6 +254,10 @@ class GO_MailChimp_Admin
 				if ( $user = get_user_by( 'email', sanitize_email( $_POST[ 'data' ][ 'email' ] ) ) )
 				{
 					$this->core->api()->unsubscribe( $user->ID, $list_id );
+				}
+				elseif ( go_syncuser()->debug() )
+				{
+					apply_filters( 'go_slog', 'go-mailchimp', 'user with email ' . sanitize_email( $_POST[ 'data' ][ 'email' ] ) . ' not found');
 				}
 				break;
 
