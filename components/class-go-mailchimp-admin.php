@@ -53,6 +53,8 @@ class GO_MailChimp_Admin
 		$this->display_user_profile_status_section( $user );
 		$user_status = ob_get_clean();
 
+		$go_mailchimp_nonce = wp_create_nonce( 'go-mailchimp' );
+
 		include_once __DIR__ . '/templates/user-profile.php';
 	}//END show_user_profile
 
@@ -162,19 +164,23 @@ class GO_MailChimp_Admin
 		if ( ! current_user_can( 'edit_users' ) )
 		{
 			apply_filters( 'go_slog', 'go-mailchimp', 'called by non-admin user ' . get_current_user_id() );
-			die;
+			wp_die();
 		}
 
-		if ( ! $user = get_userdata( wp_filter_nohtml_kses( $_REQUEST[ 'go_mailchimp_user_sync_user' ] ) ) )
+		if ( ! isset( $_POST['go_mailchimp_nonce'] ) || ! wp_verify_nonce( $_POST['go_mailchimp_nonce'], 'go-mailchimp' ) )
 		{
-			echo '<p class="error">Couldn&apos;t read user data</p>';
-			apply_filters( 'go_slog', 'go-mailchimp', 'Invalid user data' );
-			die;
+			apply_filters( 'go_slog', 'go-mailchimp', 'invalid nonce', array( 'user' => get_current_user_id() ) );
+			wp_die();
 		}
 
-		// always set go-syncuser's debug option to TRUE when sync'ing manually
-		$prev_debug = go_syncuser()->debug();
-		go_syncuser()->debug( TRUE );
+		if ( ! $user = get_userdata( wp_filter_nohtml_kses( $_POST[ 'go_mailchimp_user_sync_user' ] ) ) )
+		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'Invalid user data' );
+			wp_die();
+		}
+
+		// set go-syncuser's debug flag on temporarily (not saved to options)
+		go_syncuser()->set_debug( TRUE );
 
 		$subscribe = $unsubscribe = array();
 
@@ -210,9 +216,10 @@ class GO_MailChimp_Admin
 
 		$this->display_user_profile_status_section( $user );
 
-		// restore the previous debug option value
-		go_syncuser()->debug( $prev_debug );
-		die;
+		// we don't need to set go-syncuser's debug flag back since the page
+		// load ends here.
+
+		wp_die();
 	}//END user_sync_ajax
 
 	/**
@@ -243,7 +250,7 @@ class GO_MailChimp_Admin
 			{
 				apply_filters( 'go_slog', 'go-mailchimp', 'missing or invalid webhook_secret' );
 			}
-			die;
+			wp_die();
 		}
 
 		switch ( $_POST[ 'type' ] )
@@ -280,7 +287,7 @@ class GO_MailChimp_Admin
 			*/
 		}//END switch
 
-		die;
+		wp_die();
 	}//END webhook_ajax
 
 	/**
