@@ -19,7 +19,8 @@
 
 			var data = {
 				action: 'go_mailchimp_user_sync',
-				go_mailchimp_user_sync_user: $( '.go-mailchimp .user' ).val()
+				go_mailchimp_user_sync_user: $( '.go-mailchimp .user' ).val(),
+				go_mailchimp_nonce: $( '.go-mailchimp .nonce' ).val()
 			};
 
 			$.post(ajaxurl, data, function(response) {

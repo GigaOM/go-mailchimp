@@ -12,8 +12,6 @@ class GO_Mailchimp_API
 	private $config = NULL;
 	private $mc     = NULL;
 
-	public $debug = FALSE;
-
 	/**
 	 * @description Creates a new instance of GO_Mailchimp_API
 	 * @constructor
@@ -307,6 +305,11 @@ class GO_Mailchimp_API
 	 */
 	public function subscribe( $user, $list = NULL, $merge_vars = NULL, $wait = FALSE, $action = 'subscribe' )
 	{
+		if ( go_syncuser()->debug() )
+		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'subscribe()', $list );
+		}
+
 		// validate the user input
 		$user_in = $user; // save this in case of error
 		$user = $this->sanitize_user( $user_in );
@@ -348,11 +351,19 @@ class GO_Mailchimp_API
 
 		if ( $this->do_not_email( $user->ID ) )
 		{
+			if ( go_syncuser()->debug() )
+			{
+				apply_filters( 'go_slog', 'go-mailchimp', 'bailing because do_not_email was set for user ' . $user->ID );
+			}
 			return FALSE;
 		}
 
 		if ( $wait )
 		{
+			if ( go_syncuser()->debug() )
+			{
+				apply_filters( 'go_slog', 'go-mailchimp', 'cronified subscribe request for user ' . $user->ID );
+			}
 			return $this->cronify( $user->ID );
 		}
 
@@ -371,6 +382,11 @@ class GO_Mailchimp_API
 		{
 			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Unable to subscribe user to list ' . $list );
 			return FALSE;
+		}
+
+		if ( go_syncuser()->debug() )
+		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'subscribed user ' . $user->ID . ' to list ' . $list );
 		}
 
 		$this->save_status( $user, $action, __FUNCTION__ );
@@ -457,6 +473,11 @@ class GO_Mailchimp_API
 	 */
 	public function unsubscribe( $user, $list = NULL, $delete = FALSE, $wait = FALSE, $action = 'unsubscribe' )
 	{
+		if ( go_syncuser()->debug() )
+		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'unsubscribe()' );
+		}
+
 		// validate the user input
 		$user_in = $user;
 		$user = $this->sanitize_user( $user );
@@ -489,12 +510,16 @@ class GO_Mailchimp_API
 
 		if ( $wait )
 		{
+			if ( go_syncuser()->debug() )
+			{
+				apply_filters( 'go_slog', 'go-mailchimp', 'cronified unsubscribe request for user ' . $user->ID );
+			}
 			return $this->cronify( $user->ID );
 		}
 
 		if ( $this->unsubscribed( $user, $list ) )
 		{
-			if ( $this->debug )
+			if ( go_syncuser()->debug() )
 			{
 				apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ": The user's email appears to be already unsubscribed from the list '$list'" );
 			}
@@ -518,6 +543,11 @@ class GO_Mailchimp_API
 		{
 			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Unable to call $list->unsubscribe' );
 			return FALSE;
+		}
+
+		if ( go_syncuser()->debug() )
+		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'unsubscribed user ' . $user->ID . ' from list ' . $list );
 		}
 
 		$this->save_status( $user, $action, __FUNCTION__ );

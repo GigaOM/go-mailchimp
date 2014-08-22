@@ -53,6 +53,8 @@ class GO_MailChimp_Admin
 		$this->display_user_profile_status_section( $user );
 		$user_status = ob_get_clean();
 
+		$go_mailchimp_nonce = wp_create_nonce( 'go-mailchimp' );
+
 		include_once __DIR__ . '/templates/user-profile.php';
 	}//END show_user_profile
 
@@ -161,14 +163,24 @@ class GO_MailChimp_Admin
 		// only allowed for people who can edit users
 		if ( ! current_user_can( 'edit_users' ) )
 		{
-			die;
+			apply_filters( 'go_slog', 'go-mailchimp', 'called by non-admin user ' . get_current_user_id() );
+			wp_die();
 		}
 
-		if ( ! $user = get_userdata( wp_filter_nohtml_kses( $_REQUEST[ 'go_mailchimp_user_sync_user' ] ) ) )
+		if ( ! isset( $_POST['go_mailchimp_nonce'] ) || ! wp_verify_nonce( $_POST['go_mailchimp_nonce'], 'go-mailchimp' ) )
 		{
-			echo '<p class="error">Couldn&apos;t read user data</p>';
-			die;
+			apply_filters( 'go_slog', 'go-mailchimp', 'invalid nonce', array( 'user' => get_current_user_id() ) );
+			wp_die();
 		}
+
+		if ( ! $user = get_userdata( wp_filter_nohtml_kses( $_POST[ 'go_mailchimp_user_sync_user' ] ) ) )
+		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'Invalid user data' );
+			wp_die();
+		}
+
+		// set go-syncuser's debug flag on temporarily (not saved to options)
+		go_syncuser()->set_debug( TRUE );
 
 		$subscribe = $unsubscribe = array();
 
@@ -182,10 +194,10 @@ class GO_MailChimp_Admin
 			switch ( $membership_info['status'] )
 			{
 				case 'unsubscribed':
-					$unsubscribe[] = $list['id'];
+					$unsubscribe[ $list['id'] ] = $list['id'];
 					break;
 				default:
-					$subscribe[] = $list['id'];
+					$subscribe[ $list['id'] ] = $list['id'];
 					break;
 			}//END switch
 		}//END foreach
@@ -203,7 +215,11 @@ class GO_MailChimp_Admin
 		}
 
 		$this->display_user_profile_status_section( $user );
-		die;
+
+		// we don't need to set go-syncuser's debug flag back since the page
+		// load ends here.
+
+		wp_die();
 	}//END user_sync_ajax
 
 	/**
@@ -212,6 +228,11 @@ class GO_MailChimp_Admin
 	 */
 	public function webhook_ajax()
 	{
+		if ( go_syncuser()->debug() )
+		{
+			apply_filters( 'go_slog', 'go-mailchimp', 'webhook_ajax called' );
+		}
+
 		// Mailchimp's documentation: http://apidocs.mailchimp.com/webhooks/
 
 		// example URL: http://site.org/wp-admin/admin-ajax.php?action=go-mailchimp-webhook&mailchimpwhs=$webhook_secret
@@ -225,7 +246,11 @@ class GO_MailChimp_Admin
 
 		if ( ! isset( $lists[ $list_id ]['webhook_secret'] ) || ! $_GET['mailchimpwhs'] == $lists[ $list_id ]['webhook_secret'] )
 		{
-			die;
+			if ( go_syncuser()->debug() )
+			{
+				apply_filters( 'go_slog', 'go-mailchimp', 'missing or invalid webhook_secret' );
+			}
+			wp_die();
 		}
 
 		switch ( $_POST[ 'type' ] )
@@ -236,6 +261,10 @@ class GO_MailChimp_Admin
 				if ( $user = get_user_by( 'email', sanitize_email( $_POST[ 'data' ][ 'email' ] ) ) )
 				{
 					$this->core->api()->unsubscribe( $user->ID, $list_id );
+				}
+				elseif ( go_syncuser()->debug() )
+				{
+					apply_filters( 'go_slog', 'go-mailchimp', 'user with email ' . sanitize_email( $_POST[ 'data' ][ 'email' ] ) . ' not found' );
 				}
 				break;
 
@@ -258,7 +287,7 @@ class GO_MailChimp_Admin
 			*/
 		}//END switch
 
-		die;
+		wp_die();
 	}//END webhook_ajax
 
 	/**
