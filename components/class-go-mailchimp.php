@@ -46,7 +46,7 @@ class GO_MailChimp
 	{
 		if ( ! $this->config() )
 		{
-			apply_filters( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Trying to register hooks without a valid config file.' );
+			do_action( 'go_slog', 'go-mailchimp', __FUNCTION__ . ': Trying to register hooks without a valid config file.' );
 		}
 
 		// hook pre_user_login to check if the user is changing her email
@@ -161,7 +161,7 @@ class GO_MailChimp
 	{
 		if ( go_syncuser()->debug() )
 		{
-			apply_filters( 'go_slog', 'go-mailchimp', 'do_not_email updated to ' . var_export( $do_not_email, 1 ) . ' by user ' . $user_id );
+			do_action( 'go_slog', 'go-mailchimp', 'do_not_email updated to ' . var_export( $do_not_email, 1 ) . ' by user ' . $user_id );
 		}
 
 		if ( 0 >= $user_id )
@@ -191,7 +191,7 @@ class GO_MailChimp
 	{
 		if ( go_syncuser()->debug() )
 		{
-			apply_filters( 'go_slog', 'go-mailchimp', 'go_syncuser_user action invoked for user ' . $user_id );
+			do_action( 'go_slog', 'go-mailchimp', 'go_syncuser_user action invoked for user ' . $user_id );
 		}
 
 		// get all lists from mailchimp
