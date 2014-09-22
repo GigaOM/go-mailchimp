@@ -163,19 +163,19 @@ class GO_MailChimp_Admin
 		// only allowed for people who can edit users
 		if ( ! current_user_can( 'edit_users' ) )
 		{
-			apply_filters( 'go_slog', 'go-mailchimp', 'called by non-admin user ' . get_current_user_id() );
+			do_action( 'go_slog', 'go-mailchimp', 'called by non-admin user ' . get_current_user_id() );
 			wp_die();
 		}
 
 		if ( ! isset( $_POST['go_mailchimp_nonce'] ) || ! wp_verify_nonce( $_POST['go_mailchimp_nonce'], 'go-mailchimp' ) )
 		{
-			apply_filters( 'go_slog', 'go-mailchimp', 'invalid nonce', array( 'user' => get_current_user_id() ) );
+			do_action( 'go_slog', 'go-mailchimp', 'invalid nonce', array( 'user' => get_current_user_id() ) );
 			wp_die();
 		}
 
 		if ( ! $user = get_userdata( wp_filter_nohtml_kses( $_POST[ 'go_mailchimp_user_sync_user' ] ) ) )
 		{
-			apply_filters( 'go_slog', 'go-mailchimp', 'Invalid user data' );
+			do_action( 'go_slog', 'go-mailchimp', 'Invalid user data' );
 			wp_die();
 		}
 
@@ -230,7 +230,7 @@ class GO_MailChimp_Admin
 	{
 		if ( go_syncuser()->debug() )
 		{
-			apply_filters( 'go_slog', 'go-mailchimp', 'webhook_ajax called' );
+			do_action( 'go_slog', 'go-mailchimp', 'webhook_ajax called' );
 		}
 
 		// Mailchimp's documentation: http://apidocs.mailchimp.com/webhooks/
@@ -248,7 +248,7 @@ class GO_MailChimp_Admin
 		{
 			if ( go_syncuser()->debug() )
 			{
-				apply_filters( 'go_slog', 'go-mailchimp', 'missing or invalid webhook_secret' );
+				do_action( 'go_slog', 'go-mailchimp', 'missing or invalid webhook_secret' );
 			}
 			wp_die();
 		}
@@ -264,7 +264,7 @@ class GO_MailChimp_Admin
 				}
 				elseif ( go_syncuser()->debug() )
 				{
-					apply_filters( 'go_slog', 'go-mailchimp', 'user with email ' . sanitize_email( $_POST[ 'data' ][ 'email' ] ) . ' not found' );
+					do_action( 'go_slog', 'go-mailchimp', 'user with email ' . sanitize_email( $_POST[ 'data' ][ 'email' ] ) . ' not found' );
 				}
 				break;
 
