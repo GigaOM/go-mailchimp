@@ -20,8 +20,8 @@ if ( file_exists( $bootstrap ) )
 			'go-syncuser/go-syncuser.php',
 			'go-user-profile/go-user-profile.php',
 		),
-		'template' => 'vip/gigaom4-parent',
-		'stylesheet' => 'vip/gigaom4-child',
+		'template' => 'vip/gigaom5',
+		'stylesheet' => 'vip/gigaom5',
 	);
 
 	require_once $bootstrap;
