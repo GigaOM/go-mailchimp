@@ -298,9 +298,11 @@ class GO_MailChimp_Admin
 	 */
 	public function admin_enqueue_scripts( $hook )
 	{
+		$js_min = ( defined( 'GO_DEV' ) && GO_DEV ) ? 'lib' : 'min';
+
 		if ( 'profile.php' == $hook || 'user-edit.php' == $hook || 'settings_page_mailchimp' == $hook )
 		{
-			wp_enqueue_script( 'go_mailchimp_js', plugins_url( '/js/go-mailchimp.js', __FILE__ ), array( 'jquery' ) );
+			wp_enqueue_script( 'go_mailchimp_js', plugins_url( '/js/' . $js_min . '/go-mailchimp.js', __FILE__ ), array( 'jquery' ) );
 		}
 	}//END admin_enqueue_scripts
 }//END class
